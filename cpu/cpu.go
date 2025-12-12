@@ -55,7 +55,6 @@ func parseCPULine(fields []string) (*CPUStats, error) {
 	stats := &CPUStats{}
 	var err error
 
-	// fields[0] is "cpu"
 	stats.User, err = strconv.ParseUint(fields[1], 10, 64)
 	if err != nil {
 		return nil, err

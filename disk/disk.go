@@ -10,17 +10,17 @@ import (
 // DiskStats represents disk I/O statistics from /proc/diskstats
 type DiskStats struct {
 	Name            string
-	ReadsCompleted  uint64 // fields 1
-	ReadsMerged     uint64 // fields 2
-	SectorsRead     uint64 // fields 3
-	ReadTime        uint64 // fields 4
-	WritesCompleted uint64 // fields 5
-	WritesMerged    uint64 // fields 6
-	SectorsWritten  uint64 // fields 7
-	WriteTime       uint64 // fields 8
-	IoInProgress    uint64 // fields 9
-	IoTime          uint64 // fields 10
-	WeightedIoTime  uint64 // fields 11
+	ReadsCompleted  uint64
+	ReadsMerged     uint64
+	SectorsRead     uint64
+	ReadTime        uint64
+	WritesCompleted uint64
+	WritesMerged    uint64
+	SectorsWritten  uint64
+	WriteTime       uint64
+	IoInProgress    uint64
+	IoTime          uint64
+	WeightedIoTime  uint64
 }
 
 // GetDisk returns disk I/O statistics for all disks found in /proc/diskstats

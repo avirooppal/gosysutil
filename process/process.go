@@ -15,9 +15,9 @@ type Process struct {
 	PPID    int
 	Name    string
 	State   string
-	RSS     uint64 // Resident Set Size in bytes
-	Utime   uint64 // User time
-	Stime   uint64 // System time
+	RSS     uint64
+	Utime   uint64
+	Stime   uint64
 	Cmdline string
 }
 
@@ -79,16 +79,6 @@ func parseProcess(pidStr string) (*Process, error) {
 	fields := strings.Fields(rest)
 	
 	// Fields in `rest` start from index 2 (State) relative to the whole line
-	// Check `man proc` for /proc/[pid]/stat indices
-	// relative to `rest` (which starts at state):
-	// 0: state (char)
-	// 1: ppid (int)
-	// 2: pgrp
-	// ...
-	// 11: utime
-	// 12: stime
-	// ...
-	// 21: rss (pages)
 	
 	if len(fields) < 22 {
 		return nil, fmt.Errorf("not enough fields")

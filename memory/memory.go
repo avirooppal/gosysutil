@@ -9,16 +9,16 @@ import (
 
 // MemoryStats represents memory statistics from /proc/meminfo
 type MemoryStats struct {
-	Total     uint64 // Total usable RAM (i.e. physical RAM minus a few reserved bits and the kernel binary code)
-	Used      uint64 // Calculated as Total - Free - Buffers - Cached
-	Free      uint64 // The sum of LowFree+HighFree
-	Buffers   uint64 // Relatively temporary storage for raw disk blocks
-	Cached    uint64 // In-memory cache for files read from the disk (the pagecache)
-	Active    uint64 // Memory that has been used more recently and usually not reclaimed unless absolutely necessary
-	Inactive  uint64 // Memory which has been less recently used. It is more eligible to be reclaimed for other purposes
-	SwapTotal uint64 // Total amount of swap space available
-	SwapUsed  uint64 // Memory which has been evicted from RAM, and is temporarily on the disk
-	SwapFree  uint64 // Amount of swap space that is currently unused
+	Total     uint64
+	Used      uint64
+	Free      uint64
+	Buffers   uint64
+	Cached    uint64
+	Active    uint64
+	Inactive  uint64
+	SwapTotal uint64
+	SwapUsed  uint64
+	SwapFree  uint64
 }
 
 // GetMemory returns memory statistics from /proc/meminfo

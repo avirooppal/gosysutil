@@ -26,11 +26,6 @@ func GetSystemStats() (*SystemStats, error) {
 
 	stats.CPU, err = cpu.GetCPU()
 	if err != nil {
-		// Decide if we want to fail hard or partial. 
-        // For a monitor, partial might be better, but let's just return error for now to be safe.
-        // Actually, let's log/ignore for robustness? 
-        // "Plug and play" usually expects valid data. 
-        // If /proc/stat is missing, something is very wrong.
 		return nil, err
 	}
 
@@ -41,8 +36,6 @@ func GetSystemStats() (*SystemStats, error) {
 
 	stats.Disks, err = disk.GetDisk()
 	if err != nil {
-        // Disk stats might fail permissions or missing file on some containers?
-        // But user said "no docker etc for now".
 		return nil, err
 	}
 

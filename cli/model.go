@@ -18,10 +18,9 @@ type model struct {
 }
 
 func initialModel() model {
-	// Fetch initial stats immediately
 	stats, err := monitor.GetSystemStats()
 	return model{
-		currentStats: stats, // lastStats will be nil initially
+		currentStats: stats,
 		err:          err,
 	}
 }

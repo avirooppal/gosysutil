@@ -12,13 +12,11 @@ import (
 
 // Styles
 var (
-	// Colors
-	primaryColor = lipgloss.Color("#7D56F4") // Purple
-	subColor     = lipgloss.Color("#43BF6D") // Green
-	errorColor   = lipgloss.Color("#FF5F87") // Red
+	primaryColor = lipgloss.Color("#7D56F4")
+	subColor     = lipgloss.Color("#43BF6D")
+	errorColor   = lipgloss.Color("#FF5F87")
 	grayColor    = lipgloss.Color("#626262")
 
-	// Base Styles
 	appStyle = lipgloss.NewStyle().Padding(1, 2)
 
 	titleStyle = lipgloss.NewStyle().
@@ -45,11 +43,8 @@ func (m model) View() string {
 		return "Loading..."
 	}
 
-	// 1. Header
 	header := titleStyle.Render(" SYSTEM MONITOR ")
 
-	// 2. Content
-	// Calculate CPU Usage %
 	cpuUsage := 0.0
 	if m.lastStats != nil && m.currentStats != nil {
 		deltaTotal := float64(m.currentStats.CPU.Total - m.lastStats.CPU.Total)
