@@ -1,4 +1,4 @@
-# procmon
+# gosysutil
 
 Lightweight, dependency-free Go package for monitoring Linux system statistics.
 It is designed to be "plug and play", offering a simple API to retrieve CPU, Memory, Disk, and Network usage.
@@ -16,13 +16,13 @@ It is designed to be "plug and play", offering a simple API to retrieve CPU, Mem
 Import the package:
 
 ```go
-import "github.com/user/server-moni/pkg/procmon"
+import "github.com/avirooppal/gosysutil/monitor"
 ```
 
 ### Get All Stats
 
 ```go
-stats, err := procmon.GetSystemStats()
+stats, err := monitor.GetSystemStats()
 if err != nil {
     panic(err)
 }
@@ -33,20 +33,27 @@ fmt.Printf("Mem Used: %d bytes\n", stats.Memory.Used)
 
 ### Get Specific Stats
 
-You can also call individual functions if you only need specific metrics:
+You can also call individual functions if you only need specific metrics. Note that these are in their own packages:
 
 ```go
+import (
+    "github.com/avirooppal/gosysutil/cpu"
+    "github.com/avirooppal/gosysutil/memory"
+    "github.com/avirooppal/gosysutil/disk"
+    "github.com/avirooppal/gosysutil/network"
+)
+
 // CPU
-cpu, err := procmon.GetCPU()
+c, err := cpu.GetCPU()
 
 // Memory
-mem, err := procmon.GetMemory()
+m, err := memory.GetMemory()
 
 // Disk
-disks, err := procmon.GetDisk()
+d, err := disk.GetDisk()
 
 // Network
-net, err := procmon.GetNetwork()
+n, err := network.GetNetwork()
 ```
 
 ## Structures
