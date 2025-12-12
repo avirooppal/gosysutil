@@ -131,33 +131,77 @@ func (m model) View() string {
         strings.Join(netRows, "\n"),
     ))
 
-    // Processes View (Top 10 by RSS)
+    // Processes View (Top 10 by CPU)
     var procRows []string
     procs := m.currentStats.Processes
-    // Sort by RSS descending
-    sort.Slice(procs, func(i, j int) bool {
-        return procs[i].RSS > procs[j].RSS
+    
+    // Map for fast lookup of last stats
+    lastProcs := make(map[int]float64) // pid -> total_ticks (utime+stime)
+    if m.lastStats != nil {
+        for _, p := range m.lastStats.Processes {
+            lastProcs[p.PID] = float64(p.Utime + p.Stime)
+        }
+    }
+    
+    // Calculate CPU Usage for each process
+    // CPU % = (Process Delta / System Delta) * 100
+    // System Delta we calculated earlier: deltaTotal
+    
+    type procWithCPU struct {
+        pid int
+        rss uint64
+        cmd string
+        cpu float64
+    }
+    
+    var displayProcs []procWithCPU
+    deltaTotal := 0.0
+    if m.lastStats != nil {
+        deltaTotal = float64(m.currentStats.CPU.Total - m.lastStats.CPU.Total)
+    }
+
+    for _, p := range procs {
+        cpuPct := 0.0
+        if deltaTotal > 0 {
+            if lastTicks, ok := lastProcs[p.PID]; ok {
+                currTicks := float64(p.Utime + p.Stime)
+                cpuPct = ((currTicks - lastTicks) / deltaTotal) * 100
+            }
+        }
+        
+        displayProcs = append(displayProcs, procWithCPU{
+            pid: p.PID,
+            rss: p.RSS,
+            cmd: p.Cmdline,
+            cpu: cpuPct,
+        })
+    }
+
+    // Sort by CPU descending
+    sort.Slice(displayProcs, func(i, j int) bool {
+        return displayProcs[i].cpu > displayProcs[j].cpu
     })
     
     // Header
-    procRows = append(procRows, fmt.Sprintf("%-6s %-10s %-20s", "PID", "RSS", "CMD"))
+    procRows = append(procRows, fmt.Sprintf("%-6s %-6s %-10s %-20s", "PID", "CPU%", "RSS", "CMD"))
     
-    for i, p := range procs {
+    for i, p := range displayProcs {
         if i >= 10 { break }
         // Truncate cmdline
-        cmd := p.Cmdline
+        cmd := p.cmd
         if len(cmd) > 20 { cmd = cmd[:17] + "..." }
         
-        procRows = append(procRows, fmt.Sprintf("%-6d %-10s %-20s", 
-            p.PID, 
-            humanizeBytes(float64(p.RSS)), 
+        procRows = append(procRows, fmt.Sprintf("%-6d %-6.1f %-10s %-20s", 
+            p.pid, 
+            p.cpu,
+            humanizeBytes(float64(p.rss)), 
             cmd,
         ))
     }
     
     procSection := sectionStyle.Render(fmt.Sprintf(
         "%s\n\n%s",
-        labelStyle.Render("TOP PROCESSES (MEM)"),
+        labelStyle.Render("TOP PROCESSES (CPU)"),
         strings.Join(procRows, "\n"),
     ))
 
