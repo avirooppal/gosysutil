@@ -13,6 +13,29 @@ It is designed to be "plug and play", offering a simple API to retrieve CPU, Mem
 
 ## Usage
 
+### Running the CLI (SysMetric Tool)
+
+If you want to use the included terminal-based system monitor:
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/avirooppal/gosysutil.git
+   cd gosysutil
+   ```
+
+2. **Run directly:**
+   ```bash
+   go run ./cli
+   ```
+
+   **Or build and run:**
+   ```bash
+   go build -o sysmon ./cli
+   ./sysmon
+   ```
+
+## Library Usage
+
 Import the package:
 
 ```go

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+    "sort"
 	"strings"
 
 	// tea "github.com/charmbracelet/bubbletea"
@@ -130,6 +131,36 @@ func (m model) View() string {
         strings.Join(netRows, "\n"),
     ))
 
+    // Processes View (Top 10 by RSS)
+    var procRows []string
+    procs := m.currentStats.Processes
+    // Sort by RSS descending
+    sort.Slice(procs, func(i, j int) bool {
+        return procs[i].RSS > procs[j].RSS
+    })
+    
+    // Header
+    procRows = append(procRows, fmt.Sprintf("%-6s %-10s %-20s", "PID", "RSS", "CMD"))
+    
+    for i, p := range procs {
+        if i >= 10 { break }
+        // Truncate cmdline
+        cmd := p.Cmdline
+        if len(cmd) > 20 { cmd = cmd[:17] + "..." }
+        
+        procRows = append(procRows, fmt.Sprintf("%-6d %-10s %-20s", 
+            p.PID, 
+            humanizeBytes(float64(p.RSS)), 
+            cmd,
+        ))
+    }
+    
+    procSection := sectionStyle.Render(fmt.Sprintf(
+        "%s\n\n%s",
+        labelStyle.Render("TOP PROCESSES (MEM)"),
+        strings.Join(procRows, "\n"),
+    ))
+
 	// Layout: Top Row (CPU + Mem), Bottom Row (Disk + Net)
     // We join horizontally using lipgloss.JoinHorizontal
     topRow := lipgloss.JoinHorizontal(lipgloss.Top, cpuSection, memSection)
@@ -140,6 +171,7 @@ func (m model) View() string {
 		header,
 		topRow,
 		bottomRow,
+        procSection,
 		labelStyle.Render("Press 'q' or 'esc' to quit"),
 	))
 }

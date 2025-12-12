@@ -5,6 +5,7 @@ import (
 	"github.com/avirooppal/gosysutil/disk"
 	"github.com/avirooppal/gosysutil/memory"
 	"github.com/avirooppal/gosysutil/network"
+	"github.com/avirooppal/gosysutil/process"
 )
 
 // SystemStats aggregates all system statistics
@@ -13,6 +14,7 @@ type SystemStats struct {
 	Memory  *memory.MemoryStats
 	Disks   []disk.DiskStats
 	Network []network.NetworkStats
+	Processes []process.Process
 }
 
 // GetSystemStats collects all available system statistics.
@@ -48,6 +50,11 @@ func GetSystemStats() (*SystemStats, error) {
 	if err != nil {
 		return nil, err
 	}
+    
+    stats.Processes, err = process.GetProcesses()
+    if err != nil {
+        return nil, err
+    }
 
 	return stats, nil
 }
