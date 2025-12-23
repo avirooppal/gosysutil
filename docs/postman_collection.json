@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "4b68f3a3-7e5d-4c8d-9c3a-3c7f8a7d6e5a",
 		"name": "gosysutil API",
-		"description": "API collection for gosysutil system metrics.",
+		"description": "API collection for gosysutil system metrics. All outputs are human-readable and sensible.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -21,7 +21,7 @@
 						"cpu"
 					]
 				},
-				"description": "Returns aggregate CPU statistics from /proc/stat"
+				"description": "Returns a detailed breakdown of CPU usage percentages (Total, User, System, Idle). The metrics are calculated by sampling CPU activity over a 500ms interval to provide accurate real-time usage."
 			},
 			"response": []
 		},
@@ -40,7 +40,7 @@
 						"disk"
 					]
 				},
-				"description": "Returns disk I/O statistics for all disks"
+				"description": "Returns a list of all physical disks (excluding loop/ram devices) with their cumulative read and write counts since the system started."
 			},
 			"response": []
 		},
@@ -59,7 +59,7 @@
 						"memory"
 					]
 				},
-				"description": "Returns memory usage statistics from /proc/meminfo"
+				"description": "Returns memory usage statistics including Total, Used, and Free memory, plus Swap details. Values are formatted in human-readable units (e.g., GB, MB) and include a 'percent_used' field for quick assessment."
 			},
 			"response": []
 		},
@@ -78,7 +78,7 @@
 						"network"
 					]
 				},
-				"description": "Returns network I/O statistics"
+				"description": "Returns traffic statistics (Received and Sent bytes) and packet counts for all network interfaces. Data sizes are automatically scaled to human-friendly units (KB, MB, GB)."
 			},
 			"response": []
 		},
@@ -97,12 +97,12 @@
 						"process"
 					]
 				},
-				"description": "Returns statistics for all running processes"
+				"description": "Returns a list of all running processes with their PID, name, memory usage (RSS), and the command used to start them."
 			},
 			"response": []
 		},
 		{
-			"name": "All System Stats",
+			"name": "All-in-One Summary",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -116,7 +116,7 @@
 						"all"
 					]
 				},
-				"description": "Returns all available system statistics in a single response"
+				"description": "Returns a comprehensive snapshot of the entire system in a single JSON response, including refined CPU breakdown, memory summary, disk inventory, and network status."
 			},
 			"response": []
 		}
