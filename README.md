@@ -34,6 +34,27 @@ If you want to use the included terminal-based system monitor:
    ./sysmon
    ```
 
+### Running the Backend API
+
+The project includes a plug-and-play HTTP backend that exposes system metrics as JSON:
+
+1. **Run the API server:**
+   ```bash
+   go run ./cmd/api
+   ```
+   *By default, the server runs on port 8080. You can change this by setting the `PORT` environment variable.*
+
+2. **Endpoints:**
+   - `GET /api/cpu`: CPU statistics
+   - `GET /api/disk`: Disk I/O statistics
+   - `GET /api/memory`: Memory usage statistics
+   - `GET /api/network`: Network interface statistics
+   - `GET /api/process`: Process list
+   - `GET /api/all`: All-in-one system overview
+
+3. **Documentation:**
+   A Postman collection is available at [docs/postman_collection.json](file:///c:/Users/aviroop/Desktop/gosysutil/docs/postman_collection.json).
+
 ## Library Usage
 
 Import the package:

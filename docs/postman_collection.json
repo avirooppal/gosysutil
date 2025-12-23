@@ -1,0 +1,131 @@
+{
+	"info": {
+		"_postman_id": "4b68f3a3-7e5d-4c8d-9c3a-3c7f8a7d6e5a",
+		"name": "gosysutil API",
+		"description": "API collection for gosysutil system metrics.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CPU Metrics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/cpu",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"cpu"
+					]
+				},
+				"description": "Returns aggregate CPU statistics from /proc/stat"
+			},
+			"response": []
+		},
+		{
+			"name": "Disk Metrics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/disk",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"disk"
+					]
+				},
+				"description": "Returns disk I/O statistics for all disks"
+			},
+			"response": []
+		},
+		{
+			"name": "Memory Metrics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/memory",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"memory"
+					]
+				},
+				"description": "Returns memory usage statistics from /proc/meminfo"
+			},
+			"response": []
+		},
+		{
+			"name": "Network Metrics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/network",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"network"
+					]
+				},
+				"description": "Returns network I/O statistics"
+			},
+			"response": []
+		},
+		{
+			"name": "Process Metrics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/process",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"process"
+					]
+				},
+				"description": "Returns statistics for all running processes"
+			},
+			"response": []
+		},
+		{
+			"name": "All System Stats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/all",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"all"
+					]
+				},
+				"description": "Returns all available system statistics in a single response"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
