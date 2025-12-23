@@ -1,3 +1,5 @@
+// +build linux
+
 package cpu
 
 import (
@@ -6,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // CPUStats represents CPU statistics from /proc/stat
@@ -99,4 +102,29 @@ func parseCPULine(fields []string) (*CPUStats, error) {
 		stats.Guest + stats.GuestNice
 
 	return stats, nil
+}
+
+// GetCPUUsage calculates the CPU usage percentage over a 200ms interval
+func GetCPUUsage() (float64, error) {
+	s1, err := GetCPU()
+	if err != nil {
+		return 0, err
+	}
+
+	time.Sleep(200 * time.Millisecond)
+
+	s2, err := GetCPU()
+	if err != nil {
+		return 0, err
+	}
+
+	idleDelta := s2.Idle - s1.Idle
+	totalDelta := s2.Total - s1.Total
+
+	if totalDelta == 0 {
+		return 0, nil
+	}
+
+	usage := float64(totalDelta-idleDelta) / float64(totalDelta) * 100
+	return usage, nil
 }
