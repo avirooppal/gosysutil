@@ -2,11 +2,6 @@
 
 package cpu
 
-import (
-	"fmt"
-	"time"
-)
-
 // CPUStats represents CPU statistics
 type CPUStats struct {
 	User      uint64

@@ -2,12 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/avirooppal/gosysutil/cpu"
 	"github.com/avirooppal/gosysutil/disk"
 	"github.com/avirooppal/gosysutil/memory"
-	"github.com/avirooppal/gosysutil/monitor"
 	"github.com/avirooppal/gosysutil/network"
 	"github.com/avirooppal/gosysutil/process"
 )
