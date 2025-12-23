@@ -12,14 +12,8 @@ import (
 	"github.com/avirooppal/gosysutil/process"
 )
 
-// HandleCPU returns CPU statistics with usage percentage
+// HandleCPU returns CPU statistics with detailed usage breakdown
 func HandleCPU(w http.ResponseWriter, r *http.Request) {
-	rawStats, err := cpu.GetCPU()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	usage, err := cpu.GetCPUUsage()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -27,8 +21,10 @@ func HandleCPU(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"usage_percent": fmt.Sprintf("%.2f%%", usage),
-		"raw_stats":     rawStats,
+		"total_usage":  fmt.Sprintf("%.2f%%", usage.TotalPercent),
+		"user_usage":   fmt.Sprintf("%.2f%%", usage.UserPercent),
+		"system_usage": fmt.Sprintf("%.2f%%", usage.SystemPercent),
+		"idle_usage":   fmt.Sprintf("%.2f%%", usage.IdlePercent),
 	}
 	respondWithJSON(w, http.StatusOK, response)
 }
@@ -41,10 +37,25 @@ func HandleDisk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, stats)
+	type ReadableDisk struct {
+		Name   string `json:"name"`
+		Reads  uint64 `json:"reads"`
+		Writes uint64 `json:"writes"`
+	}
+
+	var readable []ReadableDisk
+	for _, d := range stats {
+		readable = append(readable, ReadableDisk{
+			Name:   d.Name,
+			Reads:  d.ReadsCompleted,
+			Writes: d.WritesCompleted,
+		})
+	}
+
+	respondWithJSON(w, http.StatusOK, readable)
 }
 
-// HandleMemory returns Memory statistics with human-readable sizes
+// HandleMemory returns Memory statistics with human-readable sizes and percentage
 func HandleMemory(w http.ResponseWriter, r *http.Request) {
 	stats, err := memory.GetMemory()
 	if err != nil {
@@ -52,13 +63,18 @@ func HandleMemory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	percentUsed := 0.0
+	if stats.Total > 0 {
+		percentUsed = float64(stats.Total-stats.Free) / float64(stats.Total) * 100
+	}
+
 	response := map[string]interface{}{
-		"total":    formatBytes(stats.Total),
-		"used":     formatBytes(stats.Used),
-		"free":     formatBytes(stats.Free),
-		"buffers":  formatBytes(stats.Buffers),
-		"cached":   formatBytes(stats.Cached),
-		"raw_stats": stats,
+		"total_memory":   formatBytes(stats.Total),
+		"used_memory":    formatBytes(stats.Used),
+		"free_memory":    formatBytes(stats.Free),
+		"percent_used":   fmt.Sprintf("%.2f%%", percentUsed),
+		"swap_total":     formatBytes(stats.SwapTotal),
+		"swap_used":      formatBytes(stats.SwapUsed),
 	}
 	respondWithJSON(w, http.StatusOK, response)
 }
@@ -72,19 +88,19 @@ func HandleNetwork(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type ReadableNetwork struct {
-		Name      string
-		RxBytes   string
-		TxBytes   string
-		RxPackets uint64
-		TxPackets uint64
+		Name      string `json:"interface"`
+		Rx        string `json:"received"`
+		Tx        string `json:"sent"`
+		RxPackets uint64 `json:"rx_packets"`
+		TxPackets uint64 `json:"tx_packets"`
 	}
 
 	var readable []ReadableNetwork
 	for _, s := range stats {
 		readable = append(readable, ReadableNetwork{
 			Name:      s.Name,
-			RxBytes:   formatBytes(s.RxBytes),
-			TxBytes:   formatBytes(s.TxBytes),
+			Rx:        formatBytes(s.RxBytes),
+			Tx:        formatBytes(s.TxBytes),
 			RxPackets: s.RxPackets,
 			TxPackets: s.TxPackets,
 		})
@@ -102,10 +118,10 @@ func HandleProcess(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type ReadableProcess struct {
-		PID     int
-		Name    string
-		Memory  string
-		Cmdline string
+		PID     int    `json:"pid"`
+		Name    string `json:"name"`
+		Memory  string `json:"memory_usage"`
+		Cmdline string `json:"command"`
 	}
 
 	var readable []ReadableProcess
@@ -121,29 +137,32 @@ func HandleProcess(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, readable)
 }
 
-// HandleAll returns all system statistics in a readable format
+// HandleAll returns a concise summary of all system statistics
 func HandleAll(w http.ResponseWriter, r *http.Request) {
-	// For "All", we'll just return the transformed versions of each sub-metric
-	// However, monitor.GetSystemStats() returns raw.
-	// Let's just collect them manually here for simplicity to reuse handlers or logic.
-	
-	cpuUsage, _ := cpu.GetCPUUsage()
+	cpuUsg, _ := cpu.GetCPUUsage()
 	memStats, _ := memory.GetMemory()
 	
+	percentUsed := 0.0
+	if memStats.Total > 0 {
+		percentUsed = float64(memStats.Total-memStats.Free) / float64(memStats.Total) * 100
+	}
+
 	response := map[string]interface{}{
 		"cpu": map[string]interface{}{
-			"usage": fmt.Sprintf("%.2f%%", cpuUsage),
+			"usage": fmt.Sprintf("%.2f%%", cpuUsg.TotalPercent),
+			"user":  fmt.Sprintf("%.2f%%", cpuUsg.UserPercent),
+			"sys":   fmt.Sprintf("%.2f%%", cpuUsg.SystemPercent),
 		},
 		"memory": map[string]interface{}{
 			"total": formatBytes(memStats.Total),
 			"used":  formatBytes(memStats.Used),
-			"free":  formatBytes(memStats.Free),
+			"usage": fmt.Sprintf("%.2f%%", percentUsed),
 		},
 	}
 
 	respondWithJSON(w, http.StatusOK, response)
 }
-
+	
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.MarshalIndent(payload, "", "  ")
 	w.Header().Set("Content-Type", "application/json")

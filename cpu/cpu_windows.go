@@ -28,9 +28,22 @@ func GetCPU() (*CPUStats, error) {
 	}, nil
 }
 
-// GetCPUUsage calculates the CPU usage percentage over a 200ms interval
-func GetCPUUsage() (float64, error) {
+// CPUUsage represents more detailed CPU usage percentages
+type CPUUsage struct {
+	TotalPercent  float64 `json:"total_percent"`
+	UserPercent   float64 `json:"user_percent"`
+	SystemPercent float64 `json:"system_percent"`
+	IdlePercent   float64 `json:"idle_percent"`
+}
+
+// GetCPUUsage calculates mortality CPU usage statistics for Windows
+func GetCPUUsage() (*CPUUsage, error) {
 	// Mock usage for Windows
-	return 12.5, nil
+	return &CPUUsage{
+		TotalPercent:  12.5,
+		UserPercent:   8.0,
+		SystemPercent: 4.5,
+		IdlePercent:   87.5,
+	}, nil
 }
 	

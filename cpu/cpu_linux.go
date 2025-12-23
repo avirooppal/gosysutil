@@ -104,27 +104,41 @@ func parseCPULine(fields []string) (*CPUStats, error) {
 	return stats, nil
 }
 
-// GetCPUUsage calculates the CPU usage percentage over a 200ms interval
-func GetCPUUsage() (float64, error) {
+// CPUUsage represents more detailed CPU usage percentages
+type CPUUsage struct {
+	TotalPercent  float64 `json:"total_percent"`
+	UserPercent   float64 `json:"user_percent"`
+	SystemPercent float64 `json:"system_percent"`
+	IdlePercent   float64 `json:"idle_percent"`
+}
+
+// GetCPUUsage calculates the CPU usage statistics over a 500ms interval
+func GetCPUUsage() (*CPUUsage, error) {
 	s1, err := GetCPU()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 
 	s2, err := GetCPU()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	idleDelta := s2.Idle - s1.Idle
 	totalDelta := s2.Total - s1.Total
-
 	if totalDelta == 0 {
-		return 0, nil
+		return &CPUUsage{}, nil
 	}
 
-	usage := float64(totalDelta-idleDelta) / float64(totalDelta) * 100
-	return usage, nil
+	userDelta := s2.User - s1.User
+	systemDelta := s2.System - s1.System
+	idleDelta := s2.Idle - s1.Idle
+
+	return &CPUUsage{
+		TotalPercent:  float64(totalDelta-idleDelta) / float64(totalDelta) * 100,
+		UserPercent:   float64(userDelta) / float64(totalDelta) * 100,
+		SystemPercent: float64(systemDelta) / float64(totalDelta) * 100,
+		IdlePercent:   float64(idleDelta) / float64(totalDelta) * 100,
+	}, nil
 }
