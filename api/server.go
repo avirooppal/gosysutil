@@ -137,14 +137,38 @@ func HandleProcess(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, readable)
 }
 
-// HandleAll returns a concise summary of all system statistics
+// HandleAll returns a comprehensive summary of all system statistics
 func HandleAll(w http.ResponseWriter, r *http.Request) {
 	cpuUsg, _ := cpu.GetCPUUsage()
 	memStats, _ := memory.GetMemory()
+	diskStats, _ := disk.GetDisk()
+	netStats, _ := network.GetNetwork()
 	
 	percentUsed := 0.0
 	if memStats.Total > 0 {
 		percentUsed = float64(memStats.Total-memStats.Free) / float64(memStats.Total) * 100
+	}
+
+	// Refine Disks
+	type ReadableDisk struct {
+		Name   string `json:"name"`
+		Reads  uint64 `json:"reads"`
+		Writes uint64 `json:"writes"`
+	}
+	var disks []ReadableDisk
+	for _, d := range diskStats {
+		disks = append(disks, ReadableDisk{Name: d.Name, Reads: d.ReadsCompleted, Writes: d.WritesCompleted})
+	}
+
+	// Refine Network
+	type ReadableNetwork struct {
+		Name string `json:"interface"`
+		Rx   string `json:"received"`
+		Tx   string `json:"sent"`
+	}
+	var networks []ReadableNetwork
+	for _, s := range netStats {
+		networks = append(networks, ReadableNetwork{Name: s.Name, Rx: formatBytes(s.RxBytes), Tx: formatBytes(s.TxBytes)})
 	}
 
 	response := map[string]interface{}{
@@ -152,12 +176,16 @@ func HandleAll(w http.ResponseWriter, r *http.Request) {
 			"usage": fmt.Sprintf("%.2f%%", cpuUsg.TotalPercent),
 			"user":  fmt.Sprintf("%.2f%%", cpuUsg.UserPercent),
 			"sys":   fmt.Sprintf("%.2f%%", cpuUsg.SystemPercent),
+			"idle":  fmt.Sprintf("%.2f%%", cpuUsg.IdlePercent),
 		},
 		"memory": map[string]interface{}{
 			"total": formatBytes(memStats.Total),
 			"used":  formatBytes(memStats.Used),
+			"free":  formatBytes(memStats.Free),
 			"usage": fmt.Sprintf("%.2f%%", percentUsed),
 		},
+		"disks":   disks,
+		"network": networks,
 	}
 
 	respondWithJSON(w, http.StatusOK, response)
