@@ -38,13 +38,20 @@ If you want to use the included terminal-based system monitor:
 
 The project includes a plug-and-play HTTP backend that exposes system metrics as JSON:
 
-1. **Run the API server:**
+1. **Configure the environment (Optional):**
+   Copy the example environment file and customize it:
+   ```bash
+   cp .env.example .env
+   ```
+   *You can set the `PORT` variable in the `.env` file.*
+
+2. **Run the API server:**
    ```bash
    go run ./cmd/api
    ```
-   *By default, the server runs on port 8080. You can change this by setting the `PORT` environment variable.*
+   *By default, the server runs on port `8080`. You can change this by setting the `PORT` environment variable or using a `.env` file.*
 
-2. **Endpoints:**
+3. **Endpoints:**
    - `GET /api/cpu`: CPU statistics
    - `GET /api/disk`: Disk I/O statistics
    - `GET /api/memory`: Memory usage statistics

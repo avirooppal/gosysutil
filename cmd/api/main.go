@@ -7,9 +7,15 @@ import (
 	"os"
 
 	"github.com/avirooppal/gosysutil/api"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env file if it exists
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using system environment variables")
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
