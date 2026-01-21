@@ -119,12 +119,107 @@
 				"description": "Returns a comprehensive snapshot of the entire system in a single JSON response, including refined CPU breakdown, memory summary, disk inventory, and network status."
 			},
 			"response": []
+		},
+		{
+			"name": "Load Average",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/loadavg",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"loadavg"
+					]
+				},
+				"description": "Returns the system load averages for 1, 5, and 15 minute intervals. Useful for understanding system load trends."
+			},
+			"response": []
+		},
+		{
+			"name": "System Uptime",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/uptime",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"uptime"
+					]
+				},
+				"description": "Returns the system uptime in seconds and a human-readable formatted string (e.g., '5d 12h 30m')."
+			},
+			"response": []
+		},
+		{
+			"name": "Top CPU Processes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/topcpu",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"topcpu"
+					]
+				},
+				"description": "Returns the top 5 processes sorted by CPU time (user + system ticks). Shows PID, name, CPU time, memory usage, and command."
+			},
+			"response": []
+		},
+		{
+			"name": "Top RAM Processes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/topram",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"topram"
+					]
+				},
+				"description": "Returns the top 5 processes sorted by memory usage (RSS). Shows PID, name, memory in human-readable format, and command."
+			},
+			"response": []
+		},
+		{
+			"name": "Steal/IOWait (VPS)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/steal",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"steal"
+					]
+				},
+				"description": "Returns CPU steal time and IO wait percentages. Particularly useful for VPS environments to detect hypervisor resource contention."
+			},
+			"response": []
 		}
 	],
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:8080",
+			"value": "http://localhost:5001",
 			"type": "string"
 		}
 	]

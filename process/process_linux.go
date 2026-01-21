@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -115,4 +116,40 @@ func parseProcess(pidStr string) (*Process, error) {
 		Stime:   stime,
 		Cmdline: cmdline,
 	}, nil
+}
+
+// GetTopByCPU returns the top N processes sorted by CPU time (Utime + Stime)
+func GetTopByCPU(n int) ([]Process, error) {
+	procs, err := GetProcesses()
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Slice(procs, func(i, j int) bool {
+		return (procs[i].Utime + procs[i].Stime) > (procs[j].Utime + procs[j].Stime)
+	})
+
+	if n > len(procs) {
+		n = len(procs)
+	}
+
+	return procs[:n], nil
+}
+
+// GetTopByMemory returns the top N processes sorted by memory usage (RSS)
+func GetTopByMemory(n int) ([]Process, error) {
+	procs, err := GetProcesses()
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Slice(procs, func(i, j int) bool {
+		return procs[i].RSS > procs[j].RSS
+	})
+
+	if n > len(procs) {
+		n = len(procs)
+	}
+
+	return procs[:n], nil
 }

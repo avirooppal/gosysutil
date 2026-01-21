@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/avirooppal/gosysutil/cpu"
 	"github.com/avirooppal/gosysutil/disk"
 	"github.com/avirooppal/gosysutil/memory"
 	"github.com/avirooppal/gosysutil/network"
 	"github.com/avirooppal/gosysutil/process"
+	"github.com/avirooppal/gosysutil/system"
 )
 
 // HandleCPU returns CPU statistics with detailed usage breakdown
@@ -190,6 +192,112 @@ func HandleAll(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJSON(w, http.StatusOK, response)
 }
+
+// HandleLoadAvg returns system load averages
+func HandleLoadAvg(w http.ResponseWriter, r *http.Request) {
+	stats, err := system.GetLoadAvg()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"load_1m":  fmt.Sprintf("%.2f", stats.Load1),
+		"load_5m":  fmt.Sprintf("%.2f", stats.Load5),
+		"load_15m": fmt.Sprintf("%.2f", stats.Load15),
+	}
+	respondWithJSON(w, http.StatusOK, response)
+}
+
+// HandleUptime returns system uptime information
+func HandleUptime(w http.ResponseWriter, r *http.Request) {
+	stats, err := system.GetUptime()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"uptime_seconds":   stats.Uptime,
+		"uptime_formatted": formatDuration(stats.Uptime),
+		"idle_seconds":     stats.IdleTime,
+	}
+	respondWithJSON(w, http.StatusOK, response)
+}
+
+// HandleTopCPU returns top 5 CPU-consuming processes
+func HandleTopCPU(w http.ResponseWriter, r *http.Request) {
+	procs, err := process.GetTopByCPU(5)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	type ReadableProcess struct {
+		PID      int    `json:"pid"`
+		Name     string `json:"name"`
+		CPUTime  string `json:"cpu_time"`
+		Memory   string `json:"memory"`
+		Cmdline  string `json:"command"`
+	}
+
+	var readable []ReadableProcess
+	for _, p := range procs {
+		readable = append(readable, ReadableProcess{
+			PID:     p.PID,
+			Name:    p.Name,
+			CPUTime: fmt.Sprintf("%d ticks", p.Utime+p.Stime),
+			Memory:  formatBytes(p.RSS),
+			Cmdline: p.Cmdline,
+		})
+	}
+
+	respondWithJSON(w, http.StatusOK, readable)
+}
+
+// HandleTopRAM returns top 5 memory-consuming processes
+func HandleTopRAM(w http.ResponseWriter, r *http.Request) {
+	procs, err := process.GetTopByMemory(5)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	type ReadableProcess struct {
+		PID     int    `json:"pid"`
+		Name    string `json:"name"`
+		Memory  string `json:"memory"`
+		Cmdline string `json:"command"`
+	}
+
+	var readable []ReadableProcess
+	for _, p := range procs {
+		readable = append(readable, ReadableProcess{
+			PID:     p.PID,
+			Name:    p.Name,
+			Memory:  formatBytes(p.RSS),
+			Cmdline: p.Cmdline,
+		})
+	}
+
+	respondWithJSON(w, http.StatusOK, readable)
+}
+
+// HandleSteal returns CPU steal and IO wait percentages (VPS specific)
+func HandleSteal(w http.ResponseWriter, r *http.Request) {
+	stats, err := system.GetStealIOWait()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"steal_percent":  fmt.Sprintf("%.2f%%", stats.StealPercent),
+		"iowait_percent": fmt.Sprintf("%.2f%%", stats.IOWaitPercent),
+		"description":    "Steal time indicates CPU cycles taken by hypervisor. IOWait indicates CPU waiting for disk I/O.",
+	}
+	respondWithJSON(w, http.StatusOK, response)
+}
 	
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.MarshalIndent(payload, "", "  ")
@@ -211,6 +319,21 @@ func formatBytes(b uint64) string {
 	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
 }
 
+func formatDuration(seconds float64) string {
+	d := time.Duration(seconds) * time.Second
+	days := int(d.Hours()) / 24
+	hours := int(d.Hours()) % 24
+	minutes := int(d.Minutes()) % 60
+
+	if days > 0 {
+		return fmt.Sprintf("%dd %dh %dm", days, hours, minutes)
+	}
+	if hours > 0 {
+		return fmt.Sprintf("%dh %dm", hours, minutes)
+	}
+	return fmt.Sprintf("%dm", minutes)
+}
+
 // RegisterRoutes registers the API routes to the given multiplexer
 func RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/cpu", HandleCPU)
@@ -219,4 +342,11 @@ func RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/network", HandleNetwork)
 	mux.HandleFunc("/api/process", HandleProcess)
 	mux.HandleFunc("/api/all", HandleAll)
+
+	// New endpoints
+	mux.HandleFunc("/api/loadavg", HandleLoadAvg)
+	mux.HandleFunc("/api/uptime", HandleUptime)
+	mux.HandleFunc("/api/topcpu", HandleTopCPU)
+	mux.HandleFunc("/api/topram", HandleTopRAM)
+	mux.HandleFunc("/api/steal", HandleSteal)
 }

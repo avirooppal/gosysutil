@@ -9,6 +9,10 @@ It is designed to be "plug and play", offering a simple API to retrieve CPU, Mem
 - **Memory**: Total, Used, Free, Buffers, Cached, Swap stats from `/proc/meminfo`.
 - **Disk**: I/O statistics (Reads, Writes, IO Time) for physical disks from `/proc/diskstats`.
 - **Network**: Traffic statistics (RX/TX bytes, packets, drops) for network interfaces from `/proc/net/dev`.
+- **Load Average**: System load averages (1m, 5m, 15m) from `/proc/loadavg`.
+- **Uptime**: System uptime with human-readable formatting from `/proc/uptime`.
+- **Top Processes**: Top CPU and RAM consuming processes.
+- **VPS Metrics**: CPU steal time and IO wait percentages for virtualized environments.
 - **Zero Dependencies**: Uses only the Go standard library.
 
 ## Usage
@@ -49,7 +53,7 @@ The project includes a plug-and-play HTTP backend that exposes system metrics as
    ```bash
    go run ./cmd/api
    ```
-   *By default, the server runs on port `8080`. You can change this by setting the `PORT` environment variable or using a `.env` file.*
+   *By default, the server runs on port `5001`. You can change this by setting the `PORT` environment variable or editing the `.env` file.*
 
 3. **Endpoints:**
    - `GET /api/cpu`: CPU statistics
@@ -58,6 +62,11 @@ The project includes a plug-and-play HTTP backend that exposes system metrics as
    - `GET /api/network`: Network interface statistics
    - `GET /api/process`: Process list
    - `GET /api/all`: All-in-one system overview
+   - `GET /api/loadavg`: Load average (1m, 5m, 15m)
+   - `GET /api/uptime`: System uptime with formatted output
+   - `GET /api/topcpu`: Top 5 CPU-consuming processes
+   - `GET /api/topram`: Top 5 memory-consuming processes
+   - `GET /api/steal`: IO Wait and Steal time (VPS metrics)
 
 3. **Documentation:**
    A Postman collection is available at [docs/postman_collection.json](file:///c:/Users/aviroop/Desktop/gosysutil/docs/postman_collection.json).
