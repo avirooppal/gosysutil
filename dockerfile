@@ -1,27 +1,18 @@
-# ---------- build stage ----------
-FROM golang:1.24.3-alpine AS build
+﻿# ---------- Build Stage ----------
+FROM golang:1.22-alpine AS build
 WORKDIR /app
 
-# install certs (needed for go mod download over https)
-RUN apk add --no-cache ca-certificates
-
-# deps
 COPY go.mod go.sum ./
 RUN go mod download
 
-# source
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o api ./cmd/api
 
-# build binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o api ./cmd/api
-
-# ---------- runtime stage ----------
-FROM alpine:latest
+# ---------- Runtime Stage ----------
+FROM scratch
 WORKDIR /app
-
-RUN apk add --no-cache ca-certificates
 
 COPY --from=build /app/api .
 
 EXPOSE 5001
-CMD ["./api"]
+ENTRYPOINT ["./api"]
