@@ -13,7 +13,14 @@ It is designed to be "plug and play", offering a simple API to retrieve CPU, Mem
 - **Uptime**: System uptime with human-readable formatting from `/proc/uptime`.
 - **Top Processes**: Top CPU and RAM consuming processes.
 - **VPS Metrics**: CPU steal time and IO wait percentages for virtualized environments.
-- **Zero Dependencies**: Uses only the Go standard library.
+- **Socket Stats**: TCP/UDP connection counts and memory usage from `/proc/net/sockstat`.
+- **File Descriptors**: System-wide file descriptor usage from `/proc/sys/fs/file-nr`.
+- **Pressure (PSI)**: CPU, Memory, and IO pressure stall information from `/proc/pressure/*`.
+- **VM Stats**: Page faults, paging, swap activity, OOM kills from `/proc/vmstat`.
+- **SNMP Stats**: IP/TCP/UDP packet counts, errors, retransmissions from `/proc/net/snmp`.
+- **NetStat**: Extended TCP stats (syncookies, listen drops) from `/proc/net/netstat`.
+- **GPU Stats**: Real-time NVIDIA GPU statistics (Utilization, Memory, Temp, Power) using `nvidia-smi`.
+- **Zero Dependencies**: Uses only the Go standard library (and `nvidia-smi` for GPU).
 
 ## Usage
 
@@ -67,6 +74,13 @@ The project includes a plug-and-play HTTP backend that exposes system metrics as
    - `GET /api/topcpu`: Top 5 CPU-consuming processes
    - `GET /api/topram`: Top 5 memory-consuming processes
    - `GET /api/steal`: IO Wait and Steal time (VPS metrics)
+   - `GET /api/sockstat`: Socket statistics (TCP/UDP connections)
+   - `GET /api/filenr`: File descriptor usage
+   - `GET /api/pressure`: PSI (Pressure Stall Information) for CPU/Memory/IO
+   - `GET /api/vmstat`: Virtual memory stats (page faults, swap, OOM)
+   - `GET /api/snmp`: SNMP network stats (IP/TCP/UDP counters)
+   - `GET /api/netstat`: Extended network stats (syncookies, listen drops)
+   - `GET /api/gpu`: NVIDIA GPU statistics
 
 3. **Documentation:**
    A Postman collection is available at [docs/postman_collection.json](file:///c:/Users/aviroop/Desktop/gosysutil/docs/postman_collection.json).
@@ -133,5 +147,6 @@ Contains `Name` (e.g., "eth0"), `RxBytes`, `TxBytes`, `RxPackets`, `TxPackets`, 
 
 ## Compatibility
 
-- **Linux Only**: This package relies on the `/proc` filesystem which is specific to Linux kernels.
+- **Linux Only**: This package primarily relies on the `/proc` filesystem which is specific to Linux kernels.
+   - *Note: GPU statistics work on both Linux and Windows as long as `nvidia-smi` is in the PATH.*
 - It is designed to work on bare metal or VMs.

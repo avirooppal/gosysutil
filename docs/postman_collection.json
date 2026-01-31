@@ -214,6 +214,120 @@
 				"description": "Returns CPU steal time and IO wait percentages. Particularly useful for VPS environments to detect hypervisor resource contention."
 			},
 			"response": []
+		},
+		{
+			"name": "Socket Statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/sockstat",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"sockstat"
+					]
+				},
+				"description": "Returns socket statistics from /proc/net/sockstat including TCP/UDP connection counts, memory usage, orphans, and TIME_WAIT sockets."
+			},
+			"response": []
+		},
+		{
+			"name": "File Descriptors",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/filenr",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"filenr"
+					]
+				},
+				"description": "Returns file descriptor usage from /proc/sys/fs/file-nr including allocated, free, max, and usage percentage."
+			},
+			"response": []
+		},
+		{
+			"name": "Pressure (PSI)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/pressure",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"pressure"
+					]
+				},
+				"description": "Returns Pressure Stall Information (PSI) for CPU, Memory, and IO from /proc/pressure/*. Shows some/full averages at 10s, 60s, and 300s intervals."
+			},
+			"response": []
+		},
+		{
+			"name": "VM Statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/vmstat",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"vmstat"
+					]
+				},
+				"description": "Returns virtual memory statistics from /proc/vmstat including page faults (minor/major), paging in/out, swap activity, OOM kills, and NUMA stats."
+			},
+			"response": []
+		},
+		{
+			"name": "SNMP Network Stats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/snmp",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"snmp"
+					]
+				},
+				"description": "Returns SNMP network statistics from /proc/net/snmp including IP/TCP/UDP packet counts, errors, retransmissions, and current connections."
+			},
+			"response": []
+		},
+		{
+			"name": "Extended Network Stats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/netstat",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"netstat"
+					]
+				},
+				"description": "Returns extended network statistics from /proc/net/netstat including TCP syncookies, listen overflows/drops, timeouts, and IP octet counts."
+			},
+			"response": []
 		}
 	],
 	"variable": [
